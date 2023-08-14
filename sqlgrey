@@ -791,7 +791,7 @@ sub cnctinfo($) {
 	}
 	$dsn .= $self->{sqlgrey}{db_name};
 	# only SQLite doesn't require a hostname or port
-	if (! $self->SQLite()) {
+	if (! $self->{sqlgrey}{db_type} =~ /^(SQLite)$/) {
 	    $dsn .= ';host=' . $self->{sqlgrey}{db_host};
 	    if ($self->{sqlgrey}{db_port} ne "default") {
 	        $dsn .= ';port=' . $self->{sqlgrey}{db_port};
