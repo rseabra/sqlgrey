@@ -329,15 +329,15 @@ sub drop_table($$) {
 # Database type queries
 sub SQLite($) {
     my $self = shift;
-    return ($self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'SQLite');
+    return ( (defined $self->{sqlgrey}{dbh}->{Driver}->{Name} && $self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'SQLite') or $self->{sqlgrey}{db_type} =~ /^(SQLite)$/);
 }
 sub PostgreSQL($) {
     my $self = shift;
-    return ($self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'Pg');
+    return ( (defined $self->{sqlgrey}{dbh}->{Driver}->{Name} && $self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'Pg') or $self->{sqlgrey}{db_type} =~ /^(Pg)$/);
 }
 sub MySQL($) {
     my $self = shift;
-    return ($self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'mysql') or ($self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'MariaDB');
+    return ( (defined $self->{sqlgrey}{dbh}->{Driver}->{Name} && ($self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'mysql' or $self->{sqlgrey}{dbh}->{Driver}->{Name} eq 'MariaDB')) or $self->{sqlgrey}{db_type} =~ /^(mysql|MariaDB)$/);
 }
 
 # build a SQL representation of a timestamp with a given
@@ -348,7 +348,7 @@ sub MySQL($) {
 sub past_tstamp($$$) {
     my ($self, $nb, $unit) = @_;
     if ($self->MySQL()) {
-	# MySQL doesn't want any ' char
+       # MySQL doesn't want any ' char
         return 'timestamp ' . $self->{sqlgrey}{dbnow} .
 	    " - INTERVAL $nb $unit";
     } elsif ($self->SQLite()) {
@@ -388,7 +388,7 @@ sub update_dbnow($) {
     } else {
 	$self->db_available();
 	$result = $sth->fetchall_arrayref();
-	$self->{sqlgrey}{dbnow} = $self->quote($result->[0][0]);
+        $self->{sqlgrey}{dbnow} = $self->quote($result->[0][0]);
     }
 }
 
